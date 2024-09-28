@@ -1,0 +1,349 @@
+---
+openapi: 3.0.1
+info:
+  title: LEMS API
+  description: This API exposes endpoints of LEMS application
+  contact:
+    name: LEMS
+    url: https://lems-api.com
+    email: affectionmej@gmail.com
+servers:
+  - url: http://localhost:8080
+    description: Server URL in Development environment
+  - url: https://lems-api.com
+    description: Server URL in Production environment
+tags:
+  - name: User
+    description: 사용자 API
+paths:
+  "/users/":
+    post:
+      tags:
+        - User
+      summary: 회원 등록
+      description: 새로운 회원 정보를 저장한다.
+      operationId: saveUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserSaveRequestDto"
+        required: true
+      responses:
+        '200':
+          description: 200 ok 요청이 성공적으로 처리되었습니다.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserSaveRequestDto"
+        '500':
+          description: "❌ 예상치 못한 예외 입니다."
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Result"
+  "/users/{userId}":
+    patch:
+      tags:
+        - User
+      summary: 회원 수정
+      description: 회원 정보를 수정한다. [프로필 편집]
+      operationId: editUser
+      parameters:
+        - name: userId
+          in: path
+          description: 회원 ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserUpdateRequestDto"
+        required: true
+      responses:
+        '200':
+          description: 200 ok 요청이 성공적으로 처리되었습니다.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserUpdateRequestDto"
+        '500':
+          description: "❌ 예상치 못한 예외 입니다."
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Result"
+  "/users/my-page/{userId}":
+    get:
+      tags:
+        - User
+      summary: 마이페이지 회원 조회
+      description: 본인 정보를 가져온다. [마이페이지]
+      operationId: getMyInfoById
+      parameters:
+        - name: userId
+          in: path
+          description: 회원 ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: 200 ok 요청이 성공적으로 처리되었습니다.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MyInfoDto"
+        '500':
+          description: "❌ 예상치 못한 예외 입니다."
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Result"
+  "/users/event/{eventId}":
+    get:
+      tags:
+        - User
+      summary: 모임 회원 조회
+      description: 특정 모임에 속한 회원을 조회한다. [이벤트 상세 > 참여자 목록]
+      operationId: getUserByEvent
+      parameters:
+        - name: eventId
+          in: path
+          description: 모임 ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: 200 ok 요청이 성공적으로 처리되었습니다.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/EventUserDto"
+        '500':
+          description: "❌ 예상치 못한 예외 입니다."
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Result"
+components:
+  schemas:
+    Result:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: 에러 코드
+          format: int32
+          example: 500
+        message:
+          type: string
+          description: 메시지
+          example: 예상치 못한 예외 입니다.
+    UserSaveRequestDto:
+      required:
+        - birth
+        - gender
+        - local_name
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: 이름
+          example: 김철수
+        gender:
+          type: string
+          description: 성별
+          example: M
+          enum:
+            - M
+            - W
+        email:
+          type: string
+          description: 이메일
+          example: cheolsukim@lems.com
+        birth:
+          type: string
+          description: 생년월일
+          example: '1999-05-22'
+        local_name:
+          type: string
+          description: 지역명
+          example: 서울시
+        character:
+          type: string
+          description: 성격유형
+          example: ISTP
+        introduction:
+          type: string
+          description: 소개
+          example: 성남시 분당구에 사는 직장인입니다.
+      description: 회원 등록
+    UserUpdateRequestDto:
+      required:
+        - birth
+        - local_name
+      type: object
+      properties:
+        introduction:
+          type: string
+          description: 소개
+          example: 성남시 분당구에 사는 직장인입니다.
+        local_name:
+          type: string
+          description: 지역명
+          example: 서울시
+        birth:
+          type: string
+          description: 생년월일
+          example: '1999-05-22'
+        character:
+          type: string
+          description: 성격유형
+          example: ISTP
+      description: 회원 수정
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        category_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        event_date:
+          type: string
+        location:
+          type: string
+        address:
+          type: string
+        author:
+          type: string
+        email:
+          type: string
+        content:
+          type: string
+        capacity:
+          type: integer
+          format: int32
+        availability:
+          type: string
+          enum:
+            - Y
+            - N
+        created_date:
+          type: string
+        modified_date:
+          type: string
+        users:
+          type: array
+          items:
+            "$ref": "#/components/schemas/User"
+      description: 북마크 모임
+      example: 김철수
+    MyInfoDto:
+      required:
+        - birth
+        - gender
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: 이름
+          example: 김철수
+        gender:
+          type: string
+          description: 성별
+          example: M
+          enum:
+            - M
+            - W
+        birth:
+          type: string
+          description: 생년월일
+          example: '1999-05-22'
+        character:
+          type: string
+          description: 성격유형
+          example: ISTP
+        joinEvents:
+          type: array
+          description: 참여 모임
+          items:
+            "$ref": "#/components/schemas/Event"
+        bookmarkEvents:
+          type: array
+          description: 북마크 모임
+          example: 김철수
+          items:
+            "$ref": "#/components/schemas/Event"
+      description: 마이페이지 회원 정보
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        gender:
+          type: string
+          enum:
+            - M
+            - W
+        email:
+          type: string
+        birth:
+          type: string
+        local_name:
+          type: string
+        character:
+          type: string
+        introduction:
+          type: string
+        created_date:
+          type: string
+        modified_date:
+          type: string
+        events:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Event"
+    EventUserDto:
+      required:
+        - gender
+        - introduction
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: 이름
+          example: 김철수
+        gender:
+          type: string
+          description: 성별
+          example: M
+          enum:
+            - M
+            - W
+        introduction:
+          type: string
+          description: 소개
+          example: 성남시 분당구에 사는 직장인입니다.
+      description: 특정 모임에 속한 회원
